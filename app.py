@@ -1,24 +1,27 @@
-#import package
+from config import Config
 from flask import Flask, request, abort
 
-
-
-from linebot import (
-    LineBotApi, WebhookHandler
-)
 from linebot.exceptions import (
-    InvalidSignatureError,LineBotApiError
+    InvalidSignatureError
 )
-from linebot.models import *
 
+from linebot.models import StickerMessage, MessageEvent, \
+    TextMessage
 
-import requests 
-#import urllib3
-#from bs4 import BeautifulSoup
-#from urllib.request import urlretrieve
-import random
+from strategy import TaskStrategy, eyny_movie, apple_news, \
+    ptt_beauty, imgur_beauty, random_beauty, ptt_hot, \
+    ptt_gossiping, movie, youtube_video, technews, panx, \
+    oil_price
 
+from strategy import TemplateStrategy, start_template, news_template, \
+    movie_template, ptt_template, beauty_template, imgur_bot_template
 
+from strategy import ImageStrategy
+
+from my_dict import MyDict
+
+config = Config()
+handler = config.handler
 app = Flask(__name__)
 
 # Channel Access Token
@@ -27,22 +30,23 @@ line_bot_api = LineBotApi('gykY4fX9E2OVAHB5T2bsAYc6jdBvYuVD+4UOVU884pTBiXbkakmkw
 handler = WebhookHandler('c9090fcb98c6171554e57bc42e50ff79')
 
 
-
-
-#  /callback  Post Request
 @app.route("/callback", methods=['POST'])
 def callback():
     # get X-Line-Signature header value
     signature = request.headers['X-Line-Signature']
+
     # get request body as text
     body = request.get_data(as_text=True)
+    # print("body:",body)
     app.logger.info("Request body: " + body)
+
     # handle webhook body
     try:
         handler.handle(body, signature)
     except InvalidSignatureError:
         abort(400)
-    return 'OK'
+
+    return 'ok'
 
 
 class Bot:
